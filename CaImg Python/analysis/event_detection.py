@@ -2,11 +2,11 @@ import numpy as np
 
 def detect_on_states(
         dff,
-        threshold
-):
+        threshold: float
+) -> np.ndarray:
     
     """
-    Covert a dF/F0 trace into a binary ON/OFF
+    Convert a dF/F0 trace into a binary ON/OFF
     activity trace.
 
     Parameters
@@ -26,8 +26,8 @@ def detect_on_states(
     return dff >= threshold
 
 def extract_events(
-        binary_trace
-):
+        binary_trace: np.ndarray
+) -> list[tuple[int, int]]:
     
     """
     Extract contiguous ON periods from a
@@ -49,6 +49,11 @@ def extract_events(
     events = []
 
     start = None
+
+    if binary_trace.dtype != bool:
+        raise ValueError(
+            "binary_trace must be a boolean array"
+        )
 
     for i, val in enumerate(binary_trace):
 
@@ -75,8 +80,8 @@ def extract_events(
     return events
 
 def extract_iei(
-        binary_trace
-):
+        binary_trace: np.ndarray
+) -> list[tuple[int, int]]:
     
     """
     Extract inter-event intervals (IEIs) from a
@@ -95,11 +100,11 @@ def extract_iei(
             (start_frame, end_frame)
     """
 
-    off_trace = np.logical_not(
-        binary_trace
+    off_intervals = extract_events(
+        np.logical_not(
+            binary_trace
+        )
     )
 
-    return extract_events(
-        off_trace
-    )
+    return off_intervals
 

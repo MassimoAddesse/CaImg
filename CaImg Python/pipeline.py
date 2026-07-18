@@ -1,26 +1,28 @@
-from profilers.profiler1 import profiler1
-from profilers.profiler2 import profiler2
+from profilers.profiler1 import Profiler1
+from profilers.profiler2 import Profiler2
 from profilers.profiler3 import profiler3
+from models import AnalysisConfig
 
 
-class calciumanalysis:
+class CalciumAnalysis:
 
     def __init__(
-            self,
-            threshold,
-            half_window = 20
+        self,
+        config: AnalysisConfig
     ):
         
-        self.threshold = threshold 
+        self.config = config
 
-        self.profiler1 = profiler1(
-            threshold = threshold,
-            half_window = half_window
+        self.profiler1 = Profiler1(
+            config
         )
 
-        self.profiler2 = profiler2()
-
-        self.profiler3 = profiler3()
+        self.profiler2 = Profiler2(
+            config
+        )
+        #self.profiler3 = profiler3(
+        #    config
+        #)
 
     def run(self, fluorescence):
 
@@ -29,17 +31,21 @@ class calciumanalysis:
         )
 
         p2_results = self.profiler2.run(
-            p1_results["filtered_dff"],
-            p1_results["events"]
+            p1_results[
+                "active_cells_dff_df"
+            ],
+            p1_results[
+                "events"
+            ]
         )
 
-        p3_results = self.profiler3.run(
-            p1_results["filtered_dff"],
-            p1_results["events"]
-        )
-            
+        #p3_results = self.profiler3.run(
+        #    filtered_dff,
+        #     events
+        #)
+
         return {
             "profiler1": p1_results,
             "profiler2": p2_results,
-            "profiler3": p3_results
+            #"profiler3": p3_results
         }

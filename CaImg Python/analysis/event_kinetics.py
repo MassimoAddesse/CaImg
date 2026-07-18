@@ -22,6 +22,14 @@ def rise_time(
         Number of frames required to
         reach the selected fraction of the event peak.
     """
+    if len(event_trace) == 0:
+        return np.nan
+    
+    if not 0 < fraction <= 1:
+        raise ValueError(
+            "fraction must be between 0 and 1"
+        )
+
     peak = np.max(event_trace)
 
     threshold = peak * fraction
@@ -57,7 +65,15 @@ def decay_time(
         Number of frames between the 
         last threshold crossing and the end of the event.
     """
-
+    
+    if len(event_trace) == 0:
+        return np.nan
+    
+    if not 0 < fraction <= 1:
+        raise ValueError(
+            "fraction must be between 0 and 1"
+        )
+    
     peak = np.max(event_trace)
 
     threshold = peak * fraction
@@ -144,7 +160,9 @@ def event_peak(
     float
         Maximum dF/F0 value.
     """
-
+    if len(event_trace) == 0:
+        return np.nan
+    
     return np.max(event_trace)
 
 def event_integral(
@@ -169,7 +187,7 @@ def event_integral(
         trapezoidal rule.
     """
 
-    return np.trapz(
+    return np.trapezoid(
         event_trace,
         dx = dt
     )

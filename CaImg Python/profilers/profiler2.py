@@ -1,6 +1,6 @@
-from models import Event
+from models import Event, AnalysisConfig
 
-from analysis.event_kinetics import (
+from analysis import (
     rise_time,
     decay_time,
     rise_speed,
@@ -9,9 +9,6 @@ from analysis.event_kinetics import (
     event_integral,
     event_std
 )
-
-import numpy as np
-
 
 class Profiler2:
 
@@ -38,17 +35,15 @@ class Profiler2:
 
     def __init__(
             self,
-            rise_fraction = 0.9,
-            decay_fraction = 0.9
+            config : AnalysisConfig
     ):
         
-        self.rise_fraction = rise_fraction
-        self.decay_fraction = decay_fraction
+        self.config = config
 
     def run(
             self,
 
-            filtered_dff,
+            active_cells_dff_df,
 
             events
     ):
@@ -73,16 +68,26 @@ class Profiler2:
         
         all_events = []
 
-        for cell_id, cell_events in events.items():
+        for cell_name, cell_events in events.items():
+
+            if (
+                cell_name 
+                not in active_cells_dff_df.columns
+            ):
+                continue
             
             trace = (
-                filtered_dff[:, cell_id]
+                active_cells_dff_df[
+                    cell_name
+                ].to_numpy()
             )
 
             for start, end in cell_events:
 
                 event_trace = (
-                    trace[start:end + 1]
+                    trace[
+                        start:end + 1
+                    ]
                 )
 
                 peak = event_peak(
@@ -101,13 +106,13 @@ class Profiler2:
 
                     event_trace,
 
-                    self.rise_fraction
+                    self.config.rise_fraction
                 )
 
                 dt = decay_time(
                     event_trace,
 
-                    self.decay_fraction
+                    self.config.decay_fraction
                 )
                 
                 rs = rise_speed(
@@ -122,7 +127,8 @@ class Profiler2:
 
 
                 event = Event(
-                    cell_id = cell_id,
+
+                    cell_id = cell_name,
 
                     start_frame = start,
 
@@ -133,6 +139,10 @@ class Profiler2:
                     integral = integral,
 
                     rise_time = rt,
+
+                    decay_time = dt,
+
+                    rise_speed = rs,
 
                     decay_speed = ds,
                     
