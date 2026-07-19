@@ -50,15 +50,18 @@ def compute_threshold(
             "controls cannot be empty"
         )
 
-    control_medians = []
+    std_medians = []
 
     for rec in controls:
 
-        n_frames, n_cells = rec.shape
+        cell_stds = []
 
-        for cell in range(n_cells):
+        for cell in rec.columns:
 
-            signal = rec.iloc[:, cell].to_numpy()
+            signal = (
+                rec[cell]
+                .to_numpy()
+            )
 
             f0 = local_min_f0(
                 signal,
@@ -78,18 +81,27 @@ def compute_threshold(
             if len(valid_dff) == 0:
                 continue
 
-            control_medians.append(
-                np.median(valid_dff)
+            cell_stds.append(
+                np.std(valid_dff)
             )
 
-    if len(control_medians) == 0:
+        if len(cell_stds) == 0:
+            continue
+
+        std_medians.append(
+            np.median(
+                cell_stds
+            )
+        )
+
+    if len(std_medians) == 0:
 
         raise ValueError(
             "No valid control traces found"
         )
 
     baseline = np.median(
-        control_medians
+        std_medians
     )
 
     return float(

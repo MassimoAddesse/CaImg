@@ -4,8 +4,9 @@ from dataio.exporter import export_events
 from analysis.compute_threshold import compute_threshold
 from pipeline import CalciumAnalysis
 from models import AnalysisConfig
-from dataio.plotting import plot_dff_traces
+from dataio.plotting import plot_dff_traces, plot_detected_events
 import os
+import time
 
 INPUT_FILE = r"d:\ROIs\Fox\Foxg1 1.csv"
 CONTROLS_DIR = r"D:\ROIs\Controls"
@@ -17,6 +18,8 @@ os.makedirs(
 )
 
 def main():
+    
+    start_time = time.perf_counter()
 
     try:
 
@@ -48,6 +51,14 @@ def main():
             recording
         )
 
+        elapsed_time = (
+            time.perf_counter() - start_time    
+        )
+
+        print(
+            f"Analysis completed in {elapsed_time:.3f} seconds"
+        )
+
         profiler1 = results[
             "profiler1"
         ]
@@ -56,9 +67,9 @@ def main():
             "profiler2"
         ]
 
-        #profiler3 = results[
-        #    "profiler3"
-        #]
+        profiler3 = results[
+            "profiler3"
+        ]
 
         profiler1["all_cells_dff_df"].to_excel(
             os.path.join(
@@ -119,6 +130,45 @@ def main():
             "Active Cells"
         )
 
+        profiler3["correlation_matrix"].to_excel(
+            os.path.join(
+                OUTPUT_DIR,
+                "profiler3_correlation_matrix.xlsx"
+            )
+        )
+
+        profiler3["cell_summary"].to_excel(
+            os.path.join(
+                OUTPUT_DIR,
+                "profiler3_cell_summary.xlsx"
+            ),
+            index=False
+        )
+
+        profiler3["correlation_distribution"].to_excel(
+            os.path.join(
+                OUTPUT_DIR,
+                "profiler3_correlation_distribution.xlsx"
+            ),
+            index=False
+        )
+
+        profiler3["network_summary"].to_excel(
+            os.path.join(
+                OUTPUT_DIR,
+                "profiler3_network_summary.xlsx"
+            ),
+            index=False
+        )
+
+        profiler3["renorm_df"].to_excel(
+            os.path.join(
+                OUTPUT_DIR,
+                "profiler3_renorm_df.xlsx"
+            )
+        )
+
+
     except FileNotFoundError as e:
 
         print(
@@ -130,6 +180,8 @@ def main():
         print(
             f"Unexpected error: {e}"
         )
+
+        return
 
     print("\nProfiler1")
 
@@ -151,5 +203,29 @@ def main():
         len(profiler2)
     )
 
+    print(
+        
+        profiler1["summary"]["Events"].describe()
+        
+    )
+    
+    print(
+        profiler1["summary"]
+        .sort_values(
+            "Events",
+            ascending=True
+        )
+        .head(20)
+    )
+
+    for cell_name in profiler1["active_cells"][:10]:
+
+        plot_detected_events(
+            profiler1["active_cells_dff_df"],
+            profiler1["events"][cell_name],
+            config.threshold,
+            cell_name,
+            f"results/debug_{cell_name}_events.png"
+        )
 if __name__ == "__main__":
     main()

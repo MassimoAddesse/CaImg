@@ -43,6 +43,8 @@ class AnalysisConfig:
 
     edge_margin: int = 50
 
+    min_event_length: int = 3
+
     def __post_init__(self):
 
         if self.threshold is not None and self.threshold <= 0:
