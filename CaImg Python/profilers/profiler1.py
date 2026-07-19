@@ -174,6 +174,19 @@ class Profiler1:
                 in raw_events
             ]
 
+            cell_events = [
+
+                (start, end)
+
+                for start, end
+
+                in cell_events
+
+                if (
+                    end - start + 1
+                ) >= self.config.min_event_length
+            ]
+
             raw_iei = extract_iei(
                 on
             )

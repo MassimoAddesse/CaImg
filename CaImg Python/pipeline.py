@@ -1,6 +1,6 @@
 from profilers.profiler1 import Profiler1
 from profilers.profiler2 import Profiler2
-from profilers.profiler3 import profiler3
+from profilers.profiler3 import Profiler3
 from models import AnalysisConfig
 
 
@@ -20,9 +20,7 @@ class CalciumAnalysis:
         self.profiler2 = Profiler2(
             config
         )
-        #self.profiler3 = profiler3(
-        #    config
-        #)
+        self.profiler3 = Profiler3()
 
     def run(self, fluorescence):
 
@@ -39,13 +37,14 @@ class CalciumAnalysis:
             ]
         )
 
-        #p3_results = self.profiler3.run(
-        #    filtered_dff,
-        #     events
-        #)
+        p3_results = self.profiler3.run(
+           p1_results[
+               "active_cells_dff_df"
+            ]
+        )
 
         return {
             "profiler1": p1_results,
             "profiler2": p2_results,
-            #"profiler3": p3_results
+            "profiler3": p3_results
         }

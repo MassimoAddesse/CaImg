@@ -37,3 +37,50 @@ def plot_dff_traces(
     )
 
     plt.close()
+
+def plot_detected_events(
+        dff_df,
+        events,
+        threshold,
+        cell_name,
+        filename
+):
+    
+    trace = dff_df[
+        cell_name
+    ]
+
+    plt.figure(
+        figsize=(12, 4) 
+    )
+
+    plt.plot(
+        trace.index,
+        trace.values,
+        color='blue',
+        linewidth=1,
+    )
+
+    plt.axhline(
+        y=threshold,
+        color='green',
+        linestyle='--',
+        label='Threshold'
+    )
+
+    for start, end in events:
+        plt.axvspan(
+            start,
+            end,
+            color = 'red',
+            alpha = 0.3
+        )
+
+    plt.legend()
+
+    plt.savefig(
+        filename,
+        dpi=300
+    )
+
+    plt.close()
